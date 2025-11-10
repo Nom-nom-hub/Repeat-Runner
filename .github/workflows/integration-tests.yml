@@ -29,7 +29,7 @@ jobs:
       run: |
         uv pip install --system -r requirements.txt
         uv pip install --system -e .
-        uv pip install --system pytest
+        uv pip install --system pytest pytest-cov
 
     - name: Run integration tests
       run: |

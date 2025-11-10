@@ -67,10 +67,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "-v",
-    "--tb=short",
-    "--cov=repeat_runner",
-    "--cov-report=term-missing",
-    "--cov-report=html"
+    "--tb=short"
 ]
 
 [tool.coverage.run]

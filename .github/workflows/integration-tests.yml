@@ -40,7 +40,7 @@ jobs:
     - name: Run end-to-end tests with example runner.yaml
       run: |
         # Create a test runner.yaml file
-        cat > test_runner.yaml << EOF
+        cat > test_runner.yaml << 'EOF'
 testMacro:
   commands:
     - echo "Hello from integration test"

@@ -60,7 +60,7 @@ def main():
         if not args.macro_name:
             logger.error("Macro name is required for run command")
             parser.print_help()
-            sys.exit(1)
+            sys.exit(2)
 
         if args.macro_name not in macros:
             logger.error(f"Macro '{args.macro_name}' not found")

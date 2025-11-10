@@ -53,6 +53,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             # No env specified
         }
 
+        logger = Logger()  # Non-dry-run logger
+
         with patch('subprocess.run') as mock_subprocess:
             mock_result = MagicMock()
             mock_result.returncode = 0
@@ -60,7 +62,7 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('test_macro', macro_def, self.logger)
+            execute_macro('test_macro', macro_def, logger)
 
             # Verify that subprocess was called
             mock_subprocess.assert_called_once()
@@ -87,6 +89,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             }
         }
 
+        logger = Logger()  # Non-dry-run logger
+
         with patch('os.environ.copy', return_value=original_env), \
              patch('subprocess.run') as mock_subprocess:
             mock_result = MagicMock()
@@ -95,7 +99,7 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('test_macro', macro_def, self.logger)
+            execute_macro('test_macro', macro_def, logger)
 
             # Verify that subprocess was called with overridden environment
             mock_subprocess.assert_called_once()
@@ -124,6 +128,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             'env': {'MACRO2_VAR': 'macro2_value', 'SHARED_VAR': 'macro2_shared'}
         }
 
+        logger = Logger()  # Non-dry-run logger
+
         with patch('subprocess.run') as mock_subprocess:
             mock_result = MagicMock()
             mock_result.returncode = 0
@@ -132,10 +138,10 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             mock_subprocess.return_value = mock_result
 
             # Execute first macro
-            execute_macro('macro1', macro1_def, self.logger)
+            execute_macro('macro1', macro1_def, logger)
             
             # Execute second macro
-            execute_macro('macro2', macro2_def, self.logger)
+            execute_macro('macro2', macro2_def, logger)
 
             # Check that subprocess was called twice
             self.assertEqual(mock_subprocess.call_count, 2)
@@ -163,6 +169,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             }
         }
 
+        logger = Logger()  # Non-dry-run logger
+
         with patch('subprocess.run') as mock_subprocess:
             mock_result = MagicMock()
             mock_result.returncode = 0
@@ -170,7 +178,7 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('special_macro', macro_def, self.logger)
+            execute_macro('special_macro', macro_def, logger)
 
             mock_subprocess.assert_called_once()
             args, kwargs = mock_subprocess.call_args
@@ -188,6 +196,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             'env': {}  # Empty environment
         }
 
+        logger = Logger()  # Non-dry-run logger
+
         with patch('subprocess.run') as mock_subprocess:
             mock_result = MagicMock()
             mock_result.returncode = 0
@@ -195,7 +205,7 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('empty_env_macro', macro_def, self.logger)
+            execute_macro('empty_env_macro', macro_def, logger)
 
             mock_subprocess.assert_called_once()
             args, kwargs = mock_subprocess.call_args
@@ -213,6 +223,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             'commands': ['echo "Testing"']
         }
 
+        logger = Logger()  # Non-dry-run logger
+
         with patch('subprocess.run') as mock_subprocess:
             mock_result = MagicMock()
             mock_result.returncode = 0
@@ -220,7 +232,7 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('no_env_macro', macro_def, self.logger)
+            execute_macro('no_env_macro', macro_def, logger)
 
             mock_subprocess.assert_called_once()
             args, kwargs = mock_subprocess.call_args
@@ -233,6 +245,8 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
         """Test that environment variables work correctly in macro chaining."""
         # This test simulates the scenario where one macro calls another,
         # and both have their own environment variables
+        
+        logger = Logger()  # Non-dry-run logger
         
         # Mock load_macros to return chained macros
         with patch('repeat_runner.executor.load_macros') as mock_load_macros:
@@ -258,7 +272,7 @@ class TestEnvironmentVariableSupport(unittest.TestCase):
                 mock_result.stderr = ""
                 mock_subprocess.return_value = mock_result
 
-                execute_macro('outer_macro', outer_macro_def, self.logger)
+                execute_macro('outer_macro', outer_macro_def, logger)
 
                 # Should call subprocess for the inner macro command
                 mock_subprocess.assert_called()

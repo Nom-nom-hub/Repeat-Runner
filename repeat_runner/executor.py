@@ -70,10 +70,8 @@ def execute_macro(macro_name, macro_definition, logger, continue_on_error=False,
             logger.info(f"Calling macro: {called_macro_name}")
             
             all_macros = load_macros()
-            if all_macros is None:  # Handle case where load_macros returns None (e.g. in tests)
-                all_macros = {}
-
-            if called_macro_name not in all_macros:
+            
+            if all_macros is None or called_macro_name not in all_macros:
                 logger.error(f"Macro '{called_macro_name}' not found")
                 if not continue_on_error:
                     sys.exit(1)

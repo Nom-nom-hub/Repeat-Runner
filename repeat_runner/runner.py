@@ -36,8 +36,6 @@ def main():
 
     try:
         macros = load_macros()
-        if macros is None:  # Handle case where load_macros returns None (e.g. in tests)
-            macros = {}
         if not macros:
             logger.warn("No macros found in runner.yaml file.")
     except FileNotFoundError:
@@ -52,8 +50,11 @@ def main():
 
     if args.command == 'list':
         logger.info("Available macros:")
-        for name in macros.keys():
-            logger.info(f"  - {name}")
+        if macros is not None:
+            for name in macros.keys():
+                logger.info(f"  - {name}")
+        else:
+            logger.warn("Could not load macros - no macros available")
         if logger.file_handle:
             logger.close()
         return
@@ -64,7 +65,7 @@ def main():
             parser.print_help()
             sys.exit(2)
 
-        if args.macro_name not in macros:
+        if macros is None or args.macro_name not in macros:
             logger.error(f"Macro '{args.macro_name}' not found")
             sys.exit(1)
 

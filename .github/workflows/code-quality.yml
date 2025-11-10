@@ -24,7 +24,7 @@ jobs:
 
     - name: Install dependencies with uv
       run: |
-        uv pip install flake8 pylint mypy
+        uv pip install --system flake8 pylint mypy
 
     - name: Lint with flake8
       run: |

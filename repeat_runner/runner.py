@@ -36,6 +36,9 @@ def main():
 
     try:
         macros = load_macros()
+        if macros is None:
+            logger.error("Error loading macros: load_macros returned None")
+            sys.exit(1)
         if not macros:
             logger.warn("No macros found in runner.yaml file.")
     except FileNotFoundError:

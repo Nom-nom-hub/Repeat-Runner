@@ -1,0 +1,59 @@
+name: V2 Features Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-v2-features:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Install dependencies with uv
+      run: |
+        uv pip install -r requirements.txt
+        uv pip install -e .
+        uv pip install pytest pytest-cov
+
+    - name: Run V2 feature tests specifically
+      run: |
+        # Run the test suite that includes all V2 features
+        python -m pytest tests/ -v --tb=short
+
+    - name: Count test cases
+      run: |
+        total_tests=$(grep -r "def test_" tests/ | wc -l)
+        echo "Total test cases executed: $total_tests"
+        if [ "$total_tests" -ne 158 ]; then
+          echo "ERROR: Expected 158 tests but found $total_tests"
+          exit 1
+        fi
+
+    - name: Generate coverage report for V2 features
+      run: |
+        python -m pytest tests/ --cov=repeat_runner --cov-report=term-missing --cov-report=xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: v2-features
+        name: codecov-v2-features
+        fail_ci_if_error: false

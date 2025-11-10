@@ -1,0 +1,59 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  integration-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11', '3.12', '3.13']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Install dependencies with uv
+      run: |
+        uv pip install -r requirements.txt
+        uv pip install -e .
+        uv pip install pytest
+
+    - name: Run integration tests
+      run: |
+        python -m pytest tests/test_integration.py -v
+
+    - name: Run end-to-end tests with example runner.yaml
+      run: |
+        # Create a test runner.yaml file
+        cat > test_runner.yaml << EOF
+testMacro:
+  commands:
+    - echo "Hello from integration test"
+    - python -c "print('Python integration test passed')"
+  env:
+    TEST_VAR: "integration"
+
+testChaining:
+  commands:
+    - call: testMacro
+    - echo "Chaining test completed"
+EOF
+        
+        # Test that the runner can execute the macro
+        python -m repeat_runner.runner run testMacro --dry-run
+        python -m repeat_runner.runner list

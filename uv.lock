@@ -1,0 +1,16 @@
+version = 1
+requires-python = ">=3.11"
+
+[[package]]
+name = "PyYAML"
+version = "6.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/38/c21ef5034b8a768e446474b0a95e0d3ca5e7c1ac3b0f64d9b5d3d4/PyYAML-6.0.1.tar.gz" }
+
+[[package]]
+name = "repeat-runner"
+version = "1.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "PyYAML" },
+]

@@ -1,0 +1,116 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+htmlcov/
+.cov/
+.coverage.*
+.nox/
+.pydev_log
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+.ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime
+*.pid
+*.seed
+*.pkl
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.cov/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg-info/
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Coverage
+.coverage*
+htmlcov/
+
+# MyPy
+.mypy_cache/
+
+# Environment variables
+.env
+.env.local
+.env.dev
+.env.prod
+
+# Local configuration files (not the main runner.yaml which should be committed)
+*local.yaml
+*.local.yaml
+
+# Logs from runner executions
+run-logs/
+execution-logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp

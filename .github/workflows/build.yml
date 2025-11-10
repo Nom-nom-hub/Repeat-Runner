@@ -1,0 +1,45 @@
+name: Build and Test Package
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Install dependencies with uv
+      run: |
+        uv pip install build twine
+
+    - name: Build package
+      run: python -m build
+
+    - name: Check package
+      run: |
+        twine check dist/*
+        python -m pip install dist/repeat_runner-*.tar.gz
+
+    - name: Test package installation
+      run: |
+        runner --help
+
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/

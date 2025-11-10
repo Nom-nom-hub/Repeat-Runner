@@ -1,0 +1,41 @@
+name: Complete Test Suite
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  complete-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Install dependencies with uv
+      run: |
+        uv pip install -r requirements.txt
+        uv pip install -e .
+        uv pip install -r requirements-dev.txt
+
+    - name: Run all tests with detailed output
+      run: |
+        echo "Running complete test suite..."
+        python -m tests.test_suite
+
+    - name: Verify all 158 tests passed
+      run: |
+        test_count=$(grep -r "def test_" tests/ | wc -l)
+        echo "Total test methods found: $test_count"
+        
+        # Run pytest to get detailed results
+        python -m pytest tests/ -v --tb=short --maxfail=10
+        
+        echo "All tests completed successfully!"

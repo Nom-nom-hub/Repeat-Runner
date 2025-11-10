@@ -1,0 +1,4 @@
+[tool.bandit]
+targets = ["repeat_runner/"]
+exclude_dirs = [".git", ".tox", "build", "dist", "__pycache__"]
+skips = ["B101", "B601"]  # B101: skip 'assert used' warnings, B601: skip 'paramiko call' warnings

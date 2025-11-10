@@ -1,0 +1,46 @@
+# Test runner.yaml for v2 features
+# Testing environment variables, macro chaining, and logging
+
+# Simple macro with environment variables
+buildWithEnv:
+  commands:
+    - 'echo "Building with NODE_ENV=$NODE_ENV"'
+    - 'echo "Database URL: $DB_URL"'
+  env:
+    NODE_ENV: production
+    DB_URL: "postgresql://localhost/myapp"
+
+# Another macro with different environment variables
+testWithEnv:
+  commands:
+    - 'echo "Running tests with NODE_ENV=$NODE_ENV"'
+    - 'echo "Test database: $TEST_DB"'
+  env:
+    NODE_ENV: test
+    TEST_DB: "sqlite://test.db"
+
+# Macro that calls other macros (macro chaining)
+fullBuild:
+  commands:
+    - call: buildWithEnv
+    - 'echo "Running additional build steps"'
+    - call: testWithEnv
+
+# Simple macro for comparison
+simpleCommand:
+  commands:
+    - 'echo "This is a simple command"'
+
+# Macro with chained call and environment
+envChain:
+  commands:
+    - 'echo "Setting up with ENV: $CUSTOM_ENV"'
+    - call: testWithEnv
+  env:
+    CUSTOM_ENV: "custom_value"
+
+# Macro that calls a non-existent macro
+callNonExistent:
+  commands:
+    - call: nonexistentMacro
+    - 'echo "This should not run"'

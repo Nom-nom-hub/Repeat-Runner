@@ -1,0 +1,118 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repeat-runner"
+dynamic = ["version"]
+description = "Run your repetitive dev workflows with a single command."
+readme = "README.md"
+authors = [{name = "Repeat-Runner Team"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+runner = "repeat_runner.runner:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "flake8>=5.0.0",
+    "pylint>=2.15.0",
+    "mypy>=1.0.0",
+    "bandit>=1.7.0",
+    "safety>=2.0.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+]
+
+# Configuration for uv package manager
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "flake8>=5.0.0",
+    "pylint>=2.15.0",
+    "mypy>=1.0.0",
+    "bandit>=1.7.0",
+    "safety>=2.0.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+]
+
+# This project is compatible with both uv and pip
+# Use uv for faster installation or pip for traditional installation
+
+[tool.setuptools.dynamic]
+version = {attr = "repeat_runner.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--cov=repeat_runner",
+    "--cov-report=term-missing",
+    "--cov-report=html"
+]
+
+[tool.coverage.run]
+source = ["repeat_runner"]
+omit = [
+    "*/__pycache__/*",
+    "*/tests/*",
+    "setup.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:"
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+namespace_packages = true
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-positional-arguments",
+    "fixme"
+]
+
+[tool.bandit]
+targets = ["repeat_runner/"]
+exclude_dirs = [".git", ".tox", "build", "dist", "__pycache__"]
+skips = ["B101", "B601"]

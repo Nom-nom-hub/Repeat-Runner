@@ -1,0 +1,62 @@
+name: Documentation Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyyaml
+
+    - name: Check that all documentation files are valid
+      run: |
+        # Check that README.md exists and is not empty
+        if [ ! -s README.md ]; then
+          echo "ERROR: README.md is missing or empty"
+          exit 1
+        fi
+        
+        # Check that all documentation files in docs/ exist and are not empty
+        for doc_file in docs/*.md; do
+          if [ ! -s "$doc_file" ]; then
+            echo "ERROR: $doc_file is missing or empty"
+            exit 1
+          fi
+        done
+        
+        echo "All documentation files are present and not empty"
+
+    - name: Validate runner.yaml.example exists and is valid
+      run: |
+        if [ ! -f "runner.yaml.example" ]; then
+          echo "ERROR: runner.yaml.example is missing"
+          exit 1
+        fi
+        
+        python -c "import yaml; yaml.safe_load(open('runner.yaml.example'))"
+        echo "runner.yaml.example is valid YAML"
+
+    - name: Check for broken links in documentation
+      run: |
+        # Simple check for common broken link patterns
+        broken_links=$(grep -r "http://localhost\|http://127.0.0.1\|TODO\|FIXME" docs/ README.md || true)
+        if [ -n "$broken_links" ]; then
+          echo "Potential broken links or incomplete documentation found:"
+          echo "$broken_links"
+          exit 1
+        fi
+        echo "No obvious broken links found in documentation"

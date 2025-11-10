@@ -1,0 +1,90 @@
+# Example runner.yaml for Repeat-Runner v2
+# Demonstrates all new features: environment variables, macro chaining, and logging
+
+# Development setup with environment variables
+devSetup:
+  commands:
+    - echo "Setting up development environment with NODE_ENV=$NODE_ENV"
+    - echo "Database: $DATABASE_URL"
+    - npm install
+  env:
+    NODE_ENV: development
+    DATABASE_URL: "postgresql://localhost/myapp_dev"
+
+# Build process with environment variables
+buildProject:
+  commands:
+    - echo "Building project for environment: $NODE_ENV"
+    - npm run build
+    - echo "Build output directory: $BUILD_OUTPUT"
+  env:
+    NODE_ENV: production
+    BUILD_OUTPUT: "./dist"
+
+# Test suite with environment variables
+runTests:
+  commands:
+    - echo "Running tests in $NODE_ENV mode"
+    - npm run test
+    - echo "Test database: $TEST_DATABASE"
+  env:
+    NODE_ENV: test
+    TEST_DATABASE: "sqlite://test.db"
+
+# Full development workflow using macro chaining
+devWorkflow:
+  commands:
+    - call: devSetup
+    - echo "Running additional setup steps..."
+    - call: runTests
+    - call: buildProject
+
+# Production deployment workflow
+deploy:
+  commands:
+    - call: buildProject
+    - echo "Deploying to production with $DEPLOY_ENV"
+    - echo "Deployment target: $DEPLOY_TARGET"
+    - echo "Deploying from: $CURRENT_BRANCH"
+  env:
+    DEPLOY_ENV: production
+    DEPLOY_TARGET: "aws-ec2-prod"
+    CURRENT_BRANCH: "main"
+
+# CI/CD workflow combining all features
+ciWorkflow:
+  commands:
+    - echo "Starting CI workflow for $CI_ENVIRONMENT"
+    - call: devSetup
+    - call: runTests
+    - echo "Running security checks..."
+    - npm run security:check
+    - call: buildProject
+    - echo "CI workflow completed in $CI_ENVIRONMENT"
+  env:
+    CI_ENVIRONMENT: "github-actions"
+    NODE_ENV: test
+
+# Example of a complex workflow with multiple environment variables
+complexWorkflow:
+  commands:
+    - echo "Starting complex workflow in $WORKFLOW_ENV"
+    - echo "Using database: $DATABASE_URL"
+    - echo "Output will be in: $OUTPUT_DIR"
+    - call: devSetup
+    - call: runTests
+    - call: buildProject
+    - echo "Deploying to: $DEPLOY_TARGET"
+    - echo "Workflow completed successfully!"
+  env:
+    WORKFLOW_ENV: "complex"
+    DATABASE_URL: "postgresql://localhost/complex_db"
+    OUTPUT_DIR: "./output"
+    DEPLOY_TARGET: "complex-deployment-target"
+
+# Simple macro without environment variables for comparison
+simpleTask:
+  commands:
+    - echo "This is a simple task without environment variables"
+    - date
+    - pwd

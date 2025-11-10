@@ -219,7 +219,7 @@ class TestCommandExecutionLogging(unittest.TestCase):
             mock_subprocess.return_value = mock_result
 
             macro_def = ['failing_command']
-            logger = Logger(log_file=log_file_path, continue_on_error=True)  # Continue to see logging
+            logger = Logger(log_file=log_file_path)  # Continue to see logging
             
             try:
                 execute_macro('failing_macro', macro_def, logger)

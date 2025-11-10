@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 import os
+from io import StringIO
 from unittest.mock import patch, MagicMock
 from repeat_runner.executor import execute_macro
 from repeat_runner.logger import Logger

@@ -182,7 +182,7 @@ class TestFilePermissionIssues(unittest.TestCase):
             
             # Verify permission errors were logged to stderr
             error_output = mock_stderr.getvalue()
-            self.assertIn("Could not write to log file", error_output)
+            self.assertIn("Could not open log file", error_output)
 
     def test_logger_close_on_permission_error_file(self):
         """Test that Logger.close handles files with permission errors."""

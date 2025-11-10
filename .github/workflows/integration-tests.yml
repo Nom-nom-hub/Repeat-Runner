@@ -38,20 +38,17 @@ jobs:
     - name: Run end-to-end tests with example runner.yaml
       run: |
         # Create a test runner.yaml file
-        cat > test_runner.yaml << 'EOF'
-        testMacro:
-          commands:
-            - echo "Hello from integration test"
-            - python -c "print('Python integration test passed')"
-          env:
-            TEST_VAR: "integration"
-
-        testChaining:
-          commands:
-            - call: testMacro
-            - echo "Chaining test completed"
-          env: {}
-        EOF
+        printf '%s\n' 'macros:' \
+          '  testMacro:' \
+          '    commands:' \
+          '      - echo "Hello from integration test"' \
+          "      - python -c \"print('Python integration test passed')\"" \
+          '    env:' \
+          '      TEST_VAR: "integration"' \
+          '  testChaining:' \
+          '    commands:' \
+          '      - call: testMacro' \
+          '      - echo "Chaining test completed"' > runner.yaml
 
         # Test that the runner can execute the macro
         python -m repeat_runner.runner run testMacro --dry-run

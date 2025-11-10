@@ -244,13 +244,13 @@ macros:
         mock_subprocess.return_value = mock_result
         
         yaml_content = """
-macros:
-  env_macro_test:
-    commands:
-      - echo "Environment value: $TEST_ENV"
-    env:
-      TEST_ENV: "test_value"
-"""
+        macros:
+        env_macro_test:
+        commands:
+        - 'echo "Environment value: $TEST_ENV"'
+        env:
+        TEST_ENV: "test_value"
+        """
         self.create_runner_yaml(yaml_content)
         
         # Run the main function with run command and log file

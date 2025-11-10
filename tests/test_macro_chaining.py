@@ -10,7 +10,7 @@ class TestMacroChaining(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures before each test method."""
-        self.logger = Logger(dry_run=True)  # Use dry run to avoid actual command execution
+        self.logger = Logger(dry_run=False)  # Allow subprocess calls for mocking
 
     @patch('repeat_runner.executor.load_macros')
     def test_simple_macro_chaining(self, mock_load_macros):

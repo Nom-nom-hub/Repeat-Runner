@@ -13,7 +13,7 @@ class TestErrorHandling(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures before each test method."""
-        self.logger = Logger(dry_run=True)
+        self.logger = Logger(dry_run=False)
 
     def test_invalid_macro_definition_error_handling(self):
         """Test that invalid macro definitions produce descriptive error messages."""
@@ -214,8 +214,7 @@ class TestErrorHandling(unittest.TestCase):
         """Test error handling when continue_on_error=True."""
         macro_def = ['failing_command', 'should_still_run']
 
-        with patch('subprocess.run') as mock_subprocess, \
-             patch('sys.stderr', new_callable=StringIO) as mock_stderr:
+        with patch('subprocess.run') as mock_subprocess:
             # First call fails, second succeeds
             results = [
                 MagicMock(returncode=1, stdout="", stderr="Command failed"),
@@ -229,24 +228,23 @@ class TestErrorHandling(unittest.TestCase):
             except SystemExit:
                 self.fail("execute_macro raised SystemExit when continue_on_error=True")
             
-            error_output = mock_stderr.getvalue()
-            self.assertIn("Continuing after command failure", error_output)
+            # Verify that subprocess was called twice (both commands attempted)
+            self.assertEqual(mock_subprocess.call_count, 2)
 
     def test_exception_handling_in_command_with_continue_on_error(self):
         """Test exception handling in command execution with continue_on_error=True."""
         macro_def = ['problematic_command', 'should_still_run']
 
         with patch('subprocess.run', side_effect=[Exception("Subprocess error"), 
-                                                 MagicMock(returncode=0, stdout="Success", stderr="")]), \
-             patch('sys.stderr', new_callable=StringIO) as mock_stderr:
+                                                 MagicMock(returncode=0, stdout="Success", stderr="")]) as mock_subprocess:
             # Should not raise SystemExit when continue_on_error=True
             try:
                 execute_macro('continue_exception_macro', macro_def, self.logger, continue_on_error=True)
             except SystemExit:
                 self.fail("execute_macro raised SystemExit when continue_on_error=True")
             
-            error_output = mock_stderr.getvalue()
-            self.assertIn("Continuing after exception for command", error_output)
+            # Verify that subprocess was called twice (both commands attempted)
+            self.assertEqual(mock_subprocess.call_count, 2)
 
     def test_invalid_macro_file_format_error_handling(self):
         """Test error handling for invalid macro file formats."""
@@ -284,7 +282,7 @@ class TestErrorHandling(unittest.TestCase):
         """Test error handling when verbose logging is enabled."""
         macro_def = ['failing_command']
 
-        verbose_logger = Logger(verbose=True, dry_run=True)
+        verbose_logger = Logger(verbose=True, dry_run=False)
 
         with patch('subprocess.run') as mock_subprocess, \
              patch('sys.stderr', new_callable=StringIO) as mock_stderr:

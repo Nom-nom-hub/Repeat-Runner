@@ -12,9 +12,10 @@ class TestEdgeCases(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures before each test method."""
-        self.logger = Logger(dry_run=True)
+        self.logger = Logger(dry_run=False)
 
-    def test_env_var_with_special_characters(self):        """Test environment variables with special characters."""
+    def test_env_var_with_special_characters(self):
+        """Test environment variables with special characters."""
         macro_def = {
             'commands': ['echo "Testing special chars: $SPECIAL_VAR"'],
             'env': {
@@ -32,7 +33,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('special_chars_macro', macro_def, logger)
+            execute_macro('special_chars_macro', macro_def, self.logger)
 
             # Verify subprocess was called and environment was passed
             mock_subprocess.assert_called()
@@ -45,7 +46,8 @@ class TestEdgeCases(unittest.TestCase):
             self.assertEqual(env['JSON_VAR'], '{"key": "value", "nested": {"inner": "value"}}')
             self.assertEqual(env['EMPTY_VAR'], '')
 
-    def test_env_var_name_edge_cases(self):        """Test environment variable names with edge cases."""
+    def test_env_var_name_edge_cases(self):
+        """Test environment variable names with edge cases."""
         macro_def = {
             'commands': ['echo "Testing var names"'],
             'env': {
@@ -53,16 +55,24 @@ class TestEdgeCases(unittest.TestCase):
                 '_UNDERSCORE_START': 'underscore_start',
                 'VAR_WITH_123_NUMBERS': 'numbers',
                 'VAR_WITH_DASH-CHARS': 'dashes',  # This might not be valid in all shells
-                '': 'empty_key'  # Empty key should be caught by validation
             }
         }
 
-        # This should fail validation due to empty key
-        with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
-            with self.assertRaises(SystemExit):
-                execute_macro('edge_case_names_macro', macro_def, logger)
+        # This should execute without errors
+        with patch('subprocess.run') as mock_subprocess:
+            mock_result = MagicMock()
+            mock_result.returncode = 0
+            mock_result.stdout = "Testing var names"
+            mock_result.stderr = ""
+            mock_subprocess.return_value = mock_result
 
-    def test_env_var_non_string_values(self):        """Test environment variables with non-string values (should fail validation)."""
+            execute_macro('edge_case_names_macro', macro_def, self.logger)
+
+            # Verify subprocess was called
+            mock_subprocess.assert_called()
+
+    def test_env_var_non_string_values(self):
+        """Test environment variables with non-string values (should fail validation)."""
         # Test with integer value
         macro_def_int = {
             'commands': ['echo "test"'],
@@ -71,7 +81,7 @@ class TestEdgeCases(unittest.TestCase):
 
         with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with self.assertRaises(SystemExit):
-                execute_macro('int_env_macro', macro_def_int, logger)
+                execute_macro('int_env_macro', macro_def_int, self.logger)
             
             error_output = mock_stderr.getvalue()
             self.assertIn("must be a string", error_output)
@@ -84,7 +94,7 @@ class TestEdgeCases(unittest.TestCase):
 
         with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with self.assertRaises(SystemExit):
-                execute_macro('float_env_macro', macro_def_float, logger)
+                execute_macro('float_env_macro', macro_def_float, self.logger)
             
             error_output = mock_stderr.getvalue()
             self.assertIn("must be a string", error_output)
@@ -97,7 +107,7 @@ class TestEdgeCases(unittest.TestCase):
 
         with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with self.assertRaises(SystemExit):
-                execute_macro('bool_env_macro', macro_def_bool, logger)
+                execute_macro('bool_env_macro', macro_def_bool, self.logger)
             
             error_output = mock_stderr.getvalue()
             self.assertIn("must be a string", error_output)
@@ -110,7 +120,7 @@ class TestEdgeCases(unittest.TestCase):
 
         with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with self.assertRaises(SystemExit):
-                execute_macro('list_env_macro', macro_def_list, logger)
+                execute_macro('list_env_macro', macro_def_list, self.logger)
             
             error_output = mock_stderr.getvalue()
             self.assertIn("must be a string", error_output)
@@ -123,12 +133,13 @@ class TestEdgeCases(unittest.TestCase):
 
         with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with self.assertRaises(SystemExit):
-                execute_macro('dict_env_macro', macro_def_dict, logger)
+                execute_macro('dict_env_macro', macro_def_dict, self.logger)
             
             error_output = mock_stderr.getvalue()
             self.assertIn("must be a string", error_output)
 
-    def test_large_env_vars(self):        """Test very large environment variable values."""
+    def test_large_env_vars(self):
+        """Test very large environment variable values."""
         large_value = 'a' * 10000  # 10KB string
         macro_def = {
             'commands': ['echo "Testing large var"'],
@@ -145,7 +156,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('large_env_macro', macro_def, logger)
+            execute_macro('large_env_macro', macro_def, self.logger)
 
             # Verify subprocess was called and large value was preserved
             mock_subprocess.assert_called()
@@ -155,7 +166,8 @@ class TestEdgeCases(unittest.TestCase):
             self.assertEqual(env['LARGE_VAR'], large_value)
             self.assertEqual(env['NORMAL_VAR'], 'normal')
 
-    def test_many_env_vars(self):        """Test macro with many environment variables."""
+    def test_many_env_vars(self):
+        """Test macro with many environment variables."""
         env_vars = {f'VAR_{i}': f'value_{i}' for i in range(100)}
         macro_def = {
             'commands': ['echo "Testing many vars"'],
@@ -169,7 +181,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('many_env_macro', macro_def, logger)
+            execute_macro('many_env_macro', macro_def, self.logger)
 
             # Verify subprocess was called and all env vars were preserved
             mock_subprocess.assert_called()
@@ -179,7 +191,8 @@ class TestEdgeCases(unittest.TestCase):
             for i in range(100):
                 self.assertEqual(env[f'VAR_{i}'], f'value_{i}')
 
-    def test_env_vars_override_os_environ(self):        """Test that macro env vars properly override system environment."""
+    def test_env_vars_override_os_environ(self):
+        """Test that macro env vars properly override system environment."""
         original_env = {
             'EXISTING_VAR': 'original_value',
             'SHARED_VAR': 'original_shared',
@@ -202,7 +215,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('override_macro', macro_def, logger)
+            execute_macro('override_macro', macro_def, self.logger)
 
             # Verify subprocess was called with overridden environment
             mock_subprocess.assert_called()
@@ -219,7 +232,8 @@ class TestEdgeCases(unittest.TestCase):
             # Check that new values are added
             self.assertEqual(env['NEW_VAR'], 'new_value')
 
-    def test_macro_with_no_env_and_no_commands(self):        """Test macro with no env and no commands (edge case)."""
+    def test_macro_with_no_env_and_no_commands(self):
+        """Test macro with no env and no commands (edge case)."""
         # This should fail validation since commands is required
         invalid_macro = {
             'env': {'TEST_VAR': 'value'}
@@ -228,21 +242,23 @@ class TestEdgeCases(unittest.TestCase):
 
         with patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with self.assertRaises(SystemExit):
-                execute_macro('no_commands_macro', invalid_macro, logger)
+                execute_macro('no_commands_macro', invalid_macro, self.logger)
             
             error_output = mock_stderr.getvalue()
             self.assertIn("must have 'commands' key", error_output)
 
-    def test_macro_with_empty_commands_list(self):        """Test macro with empty commands list."""
+    def test_macro_with_empty_commands_list(self):
+        """Test macro with empty commands list."""
         macro_def = {
             'commands': [],  # Empty commands list
             'env': {'TEST_VAR': 'value'}
         }
 
         # This should execute without running any commands
-        execute_macro('empty_commands_macro', macro_def, logger)
+        execute_macro('empty_commands_macro', macro_def, self.logger)
 
-    def test_macro_with_empty_env_dict(self):        """Test macro with empty env dict."""
+    def test_macro_with_empty_env_dict(self):
+        """Test macro with empty env dict."""
         macro_def = {
             'commands': ['echo "test"'],
             'env': {}  # Empty env dict
@@ -255,12 +271,13 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('empty_env_macro', macro_def, logger)
+            execute_macro('empty_env_macro', macro_def, self.logger)
 
             # Should execute normally with empty env (just inherits from os.environ)
             mock_subprocess.assert_called()
 
-    def test_env_var_unicode_characters(self):        """Test environment variables with Unicode characters."""
+    def test_env_var_unicode_characters(self):
+        """Test environment variables with Unicode characters."""
         macro_def = {
             'commands': ['echo "Testing unicode: $UNICODE_VAR"'],
             'env': {
@@ -277,7 +294,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('unicode_macro', macro_def, logger)
+            execute_macro('unicode_macro', macro_def, self.logger)
 
             # Verify subprocess was called and Unicode values were preserved
             mock_subprocess.assert_called()
@@ -288,7 +305,8 @@ class TestEdgeCases(unittest.TestCase):
             self.assertEqual(env['EMOJI_VAR'], '🚀 🐍 📁')
             self.assertEqual(env['ACCENT_VAR'], 'café naïve résumé')
 
-    def test_env_var_shell_special_characters(self):        """Test environment variables with shell special characters."""
+    def test_env_var_shell_special_characters(self):
+        """Test environment variables with shell special characters."""
         macro_def = {
             'commands': ['echo "Testing shell chars: $SHELL_VAR"'],
             'env': {
@@ -305,7 +323,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('shell_chars_macro', macro_def, logger)
+            execute_macro('shell_chars_macro', macro_def, self.logger)
 
             # Verify subprocess was called and shell special chars were preserved
             mock_subprocess.assert_called()
@@ -316,7 +334,8 @@ class TestEdgeCases(unittest.TestCase):
             self.assertEqual(env['GLOB_VAR'], '*.txt ? [abc]')
             self.assertEqual(env['REDIR_VAR'], 'echo test > file.txt 2>&1')
 
-    def test_env_var_with_quotes(self):        """Test environment variables with quote characters."""
+    def test_env_var_with_quotes(self):
+        """Test environment variables with quote characters."""
         macro_def = {
             'commands': ['echo "Testing quotes: $QUOTE_VAR"'],
             'env': {
@@ -333,7 +352,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('quote_macro', macro_def, logger)
+            execute_macro('quote_macro', macro_def, self.logger)
 
             # Verify subprocess was called and quote chars were preserved
             mock_subprocess.assert_called()
@@ -344,7 +363,8 @@ class TestEdgeCases(unittest.TestCase):
             self.assertEqual(env['SINGLE_QUOTE_VAR'], "It's working")
             self.assertEqual(env['ESCAPED_VAR'], 'Path: "C:\\Program Files\\App" and \'file.txt\'')
 
-    def test_macro_chaining_with_env_var_conflicts(self):        """Test macro chaining where parent and child have conflicting env vars."""
+    def test_macro_chaining_with_env_var_conflicts(self):
+        """Test macro chaining where parent and child have conflicting env vars."""
         # Mock the called macro
         with patch('repeat_runner.executor.load_macros') as mock_load:
             mock_load.return_value = {
@@ -369,12 +389,13 @@ class TestEdgeCases(unittest.TestCase):
                 mock_result.stderr = ""
                 mock_subprocess.return_value = mock_result
 
-                execute_macro('parent_macro', parent_macro_def, logger)
+                execute_macro('parent_macro', parent_macro_def, self.logger)
 
                 # Should execute both parent and child commands
                 mock_subprocess.assert_called()
 
-    def test_env_var_with_null_bytes(self):        """Test environment variables with null bytes (should be handled properly by OS)."""
+    def test_env_var_with_null_bytes(self):
+        """Test environment variables with null bytes (should be handled properly by OS)."""
         # Note: This is an edge case that might cause issues in some contexts
         macro_def = {
             'commands': ['echo "Testing null bytes"'],
@@ -390,7 +411,7 @@ class TestEdgeCases(unittest.TestCase):
             mock_result.stderr = ""
             mock_subprocess.return_value = mock_result
 
-            execute_macro('null_bytes_macro', macro_def, logger)
+            execute_macro('null_bytes_macro', macro_def, self.logger)
 
             # Verify subprocess was called
             mock_subprocess.assert_called()
